@@ -1,24 +1,68 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useRef, useState } from "react";
+import "./App.css";
+import gsap from "gsap";
+import Manager, { Color } from "./Manager";
+import Modal from "./Modal";
+import Sidebar from "./Sidebar";
 
 function App() {
+  const [gameOverModel, setGameOverModel] = useState(false);
+  const [gameOverModelWinnerText, setGameOverModelWinnerText] = useState("");
+
+  const man = Manager.instance || new Manager();
+
+  const boardRef = useRef(null);
+
+  useEffect(() => {
+    gsap.fromTo(
+      boardRef.current,
+      {
+        scale: 0.9,
+      },
+      {
+        scale: 0.95,
+        delay: 2.3,
+      }
+    );
+
+    man.registerWin((winner) => {
+      setGameOverModelWinnerText(
+        winner === Color.WHITE ? "White won!" : "Black won!"
+      );
+      setGameOverModel(true);
+    });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="w-full h-screen overflow-hidden bg-background">
+      {gameOverModel && (
+        <Modal
+          title={gameOverModelWinnerText}
+          actions={["restart"]}
+          onClose={() => {
+            setGameOverModel(false);
+          }}
+          onAction={(action) => {
+            if (action === "restart") {
+              man.restart();
+              setGameOverModel(false);
+            }
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          Game over...
+        </Modal>
+      )}
+      <div
+        ref={boardRef}
+        className="w-full h-screen overflow-hidden flex justify-center content-center"
+      >
+        {man.createTiles()}
+      </div>
+      <Sidebar
+        OnRestart={() => {
+          man.restart();
+        }}
+      ></Sidebar>
     </div>
   );
 }
