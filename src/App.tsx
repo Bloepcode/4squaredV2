@@ -54,7 +54,7 @@ function App() {
       )}
       <div
         ref={boardRef}
-        className="w-full h-screen overflow-hidden flex justify-center content-center"
+        className="h-screen w-full overflow-hidden flex justify-center content-center items-center"
       >
         {man.createTiles()}
       </div>
